@@ -217,40 +217,45 @@ class CryptManager {
     try {
       const writeStream = fsNormal.createWriteStream(routeFinal);
 
+      const transformFunction = new Transform({
+        transform(chunk, encoding, callback) {
+          let blockCrypt;
+          try {
+            if (actionType === TYPE_KEY.DECRYPT) {
+              blockCrypt = crypto.privateDecrypt(
+                {
+                  key: formatedKey,
+                  padding: crypto.constants.RSA_PKCS1_PADDING,
+                },
+                chunk
+              );
+            } else if (actionType === TYPE_KEY.ENCRYPT) {
+              blockCrypt = crypto.publicEncrypt(
+                {
+                  key: formatedKey,
+                  padding: crypto.constants.RSA_PKCS1_PADDING,
+                },
+                chunk
+              );
+            }
+          } catch (error) {
+            callback(new Error(`Ocurrio un error: ${error}`));
+            return;
+          }
+          callback(null, blockCrypt);
+        },
+      })
+
       await pipelineAsync(
         readStream,
-        new Transform({
-          transform(chunk, encoding, callback) {
-            let blockCrypt;
-            try {
-              if (actionType === TYPE_KEY.DECRYPT) {
-                blockCrypt = crypto.privateDecrypt(
-                  {
-                    key: formatedKey,
-                    padding: crypto.constants.RSA_PKCS1_PADDING,
-                  },
-                  chunk
-                );
-              } else if (actionType === TYPE_KEY.ENCRYPT) {
-                blockCrypt = crypto.publicEncrypt(
-                  {
-                    key: formatedKey,
-                    padding: crypto.constants.RSA_PKCS1_PADDING,
-                  },
-                  chunk
-                );
-              }
-            } catch (error) {
-              callback(new Error(`Ocurrio un error: ${error}`));
-              return;
-            }
-            callback(null, blockCrypt);
-          },
-        }),
+        transformFunction,
         writeStream
       );
+      
       return { success: "Todo bien" };
     } catch (error) {
+      //TODO: Manejaar este error --> Error: error:0200009F:rsa
+      
       fsNormal.unlinkSync(routeFinal);
       console.error(
         `Ocurrio un error al encriptar como tal en #formato de CryptManager.js. ${error}`
