@@ -1,12 +1,10 @@
 import crypto from "node:crypto";
 import bcrypt from "bcrypt";
 import CryptoJS from "crypto-js";
-import { Transform, pipeline } from "node:stream";
-import { promisify } from "node:util";
+import { Transform } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import fsNormal from "node:fs";
 import { TYPE_KEY } from "../constants.js";
-
-const pipelineAsync = promisify(pipeline);
 
 class CryptManager {
   /**
@@ -123,7 +121,7 @@ class CryptManager {
     modulusLength = 4096,
     publicType = "spki",
     privateType = "pkcs8",
-  }) => {
+  } = {}) => {
     try {
       const options = {
         modulusLength,
@@ -239,24 +237,27 @@ class CryptManager {
               );
             }
           } catch (error) {
-            callback(new Error(`Ocurrio un error: ${error}`));
+            if (
+              error.message.includes(
+                "error:1E08010C:DECODER routines::unsupported"
+              )
+            ) {
+              callback(new Error("La llave proporcionada no es correcta."));
+            } else {
+              callback(new Error(`Ocurrio un error: ${error}`));
+            }
             return;
           }
           callback(null, blockCrypt);
         },
-      })
+      });
 
-      await pipelineAsync(
-        readStream,
-        transformFunction,
-        writeStream
-      );
-      
+      await pipeline(readStream, transformFunction, writeStream);
+
       return { success: "Todo bien" };
     } catch (error) {
-      //TODO: Manejaar este error --> Error: error:0200009F:rsa
-      
       fsNormal.unlinkSync(routeFinal);
+
       console.error(
         `Ocurrio un error al encriptar como tal en #formato de CryptManager.js. ${error}`
       );
@@ -349,7 +350,7 @@ class CryptManager {
           message: `Se genero el archivo correctamente en ${routeFinal}`,
         };
 
-      throw new Error(`Ocurrio un error ${result?.error}`);
+      return { error: `Ocurrio un error ${result?.error}` };
     } catch (error) {
       console.error(error);
 

@@ -99,12 +99,14 @@ class CryptController {
 
       return res.json({ message: `Se decifro correctamente` });
     } catch (error) {
-      console.error(error);
-      return res.json({ error: `Hubo un error ${error}` });
+      // console.error(error);
+
+      return res.json({ error: "Ocurrió un error al descifrar el archivo." });
     }
   };
-  static generatePairKeys = (req, res) => {
-    const key = CryptManager.generatePairKeys({});
+
+  static generatePairKeys = async (req, res) => {
+    const key = CryptManager.generatePairKeys();
     return res.send(key);
   };
 }
