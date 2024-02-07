@@ -2,22 +2,22 @@ import XLSX from "xlsx";
 
 class ExcelComponent {
   /**
-   * Reads an Excel file.
+   * Lee un archivo Excel.
    * @private
    * @static
-   * @param {Object} params - The parameters.
-   * @param {string} params.filePath - The path of the file to read.
-   * @returns {Object} The workbook object.
+   * @param {Object} params - Los parámetros.
+   * @param {string} params.filePath - La ruta del archivo a leer.
+   * @returns {Object} El objeto workbook.
    */
   static #readFile = ({ filePath }) => XLSX.readFile(filePath);
 
   /**
-   * Creates an Excel file.
+   * Crea un archivo Excel.
    * @static
-   * @param {Object} params - The parameters.
-   * @param {string} params.filePath - The path of the file to create.
-   * @param {Array} params.data - The data to write to the file.
-   * @param {string} params.nameFile - The name of the file.
+   * @param {Object} params - Los parámetros.
+   * @param {string} params.filePath - La ruta del archivo a crear.
+   * @param {Array} params.data - Los datos para escribir en el archivo.
+   * @param {string} params.nameFile - El nombre del archivo.
    */
   static createFile = ({ filePath, data, nameFile }) => {
     const book = XLSX.utils.book_new();
@@ -27,12 +27,12 @@ class ExcelComponent {
   };
 
   /**
-   * Reads a sheet from an Excel file.
+   * Lee una hoja de un archivo Excel.
    * @static
-   * @param {Object} params - The parameters.
-   * @param {string} params.filePath - The path of the file to read.
-   * @param {number} params.indexSheet - The index of the sheet to read.
-   * @returns {Object} The sheet object.
+   * @param {Object} params - Los parámetros.
+   * @param {string} params.filePath - La ruta del archivo a leer.
+   * @param {number} params.indexSheet - El índice de la hoja a leer.
+   * @returns {Object} El objeto hoja.
    */
   static readSheet = ({ filePath, indexSheet }) => {
     const workbook = this.#readFile({ filePath });
@@ -41,23 +41,23 @@ class ExcelComponent {
   };
 
   /**
-   * Converts a worksheet to JSON.
+   * Convierte una hoja de trabajo a JSON.
    * @static
-   * @param {Object} params - The parameters.
-   * @param {Object} params.worksheet - The worksheet to convert.
-   * @param {Object} [params.options={ header: 1 }] - The options for conversion.
-   * @returns {Array} The JSON representation of the worksheet.
+   * @param {Object} params - Los parámetros.
+   * @param {Object} params.worksheet - La hoja de trabajo a transformar.
+   * @param {Object} [params.options={ header: 1 }] - Las opciones de conversión.
+   * @returns {Array} El JSON que representa la hoja de cálculo.
    */
   static convertToJson = ({ worksheet, options = { header: 1 } }) =>
     XLSX.utils.sheet_to_json(worksheet, options);
 
   /**
-   * Reads the index of a column in a row.
+   * Lee el índice de una columna en una fila.
    * @static
-   * @param {Object} params - The parameters.
-   * @param {Array} params.rows - The rows to search.
-   * @param {string} params.columnName - The name of the column to find.
-   * @returns {number} The index of the column.
+   * @param {Object} params - Los parámetros.
+   * @param {Array} params.rows - Las filas para buscar.
+   * @param {string} params.columnName - El nombre de la columna a encontrar.
+   * @returns {number} El índice de la columna.
    */
   static readIndexColumn = ({ rows, columnName }) => {
     const column = rows[0].findIndex((col) => col === columnName);
@@ -65,13 +65,13 @@ class ExcelComponent {
   };
 
   /**
-   * Returns the first result from a column in a set of rows.
+   * Retorna el primer resultado de una columna en un conjunto de filas
    * @static
-   * @param {Object} params - The parameters.
-   * @param {Array} params.rows - The rows to search.
-   * @param {string} params.columnName - The name of the column to find.
-   * @param {boolean} [params.isNumber=false] - Whether to return only numeric results.
-   * @returns {string|number} The first result.
+   * @param {Object} params - Los parametros.
+   * @param {Array} params.rows - Las filas a buscar.
+   * @param {string} params.columnName - El nombre de la columna a buscar.
+   * @param {boolean} [params.isNumber=false] - Tomar unicamente valores numericos.
+   * @returns {string|number} El primer resultado.
    */
   static returnFirnResult = ({ rows, columnName, isNumber = false }) => {
     const column = this.readIndexColumn({ rows, columnName });
